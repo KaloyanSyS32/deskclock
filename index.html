@@ -20,26 +20,6 @@
     position: relative;
   }
 
-  /* Five very subtle moving lines */
-  body::before, body::after, body span::before, body span::after, body span::after::after {
-    content: '';
-    position: absolute;
-    width: 200%;
-    height: 2px;
-    background: rgba(255,255,255,0.01); /* barely visible */
-    top: 10%;  left: -50%;
-    animation: moveLine 10.7s linear infinite;
-  }
-  body::after { top: 25%; animation-duration: 10.7s; }
-  body span::before { top: 40%; animation-duration: 10.7s; }
-  body span::after { top: 55%; animation-duration: 10.7s; }
-  body span::after::after { top: 70%; animation-duration: 10.7s; }
-
-  @keyframes moveLine {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(50%); }
-  }
-
   #time {
     font-size: 15vw;
     letter-spacing: 2px;
@@ -63,7 +43,7 @@
     font-size: 16px;
     z-index: 20;
     cursor: pointer;
-    background-color: rgba(255,255,255,);
+    background-color: rgba(255,255,255,0.05);
     color: white;
     border: none;
     border-radius: 5px;
@@ -75,7 +55,6 @@
 </style>
 </head>
 <body>
-  <span></span>
   <div id="time">00:00:00</div>
   <div id="date">January 1, 2025</div>
   <button id="fullscreenBtn">Full Screen</button>
@@ -120,4 +99,3 @@
   </script>
 </body>
 </html>
-
