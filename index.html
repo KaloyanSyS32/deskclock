@@ -2,56 +2,105 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Clock</title>
+  <title>Fullscreen Clock</title>
   <style>
     body {
       margin: 0;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background: #fff;
-      color: #000;
+      background: #000;  /* Day = black background */
+      color: #fff;       /* Day = white text */
       font-family: "Segoe UI", sans-serif;
-      font-size: 6rem;
-      transition: background 0.6s, color 0.6s;
+      transition: background 0.6s ease, color 0.6s ease;
     }
 
+    .clock {
+      font-size: 6rem;
+      font-weight: bold;
+    }
+
+    .date {
+      font-size: 2rem;
+      margin-top: 10px;
+    }
+
+    /* Fullscreen button in top-right */
+    #fullscreen-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      backdrop-filter: blur(5px);
+      transition: opacity 0.3s ease;
+      z-index: 1000;
+    }
+
+    #fullscreen-btn.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Night mode */
     body.night {
       background: #111;
-      color: #888;  /* dimmed text, almost blends with bg */
+      color: #888;  /* dimmed text for night */
     }
   </style>
 </head>
 <body>
-  <div id="clock"></div>
+  <div class="clock" id="clock">00:00:00</div>
+  <div class="date" id="date">Monday, January 1, 1970</div>
+  <button id="fullscreen-btn">Fullscreen</button>
 
   <script>
+    const clock = document.getElementById("clock");
+    const date = document.getElementById("date");
+    const btn = document.getElementById("fullscreen-btn");
+
+    // Clock + date updater
     function updateClock() {
       const now = new Date();
-      const time = now.toLocaleTimeString("en-GB", { hour12: false });
-      document.getElementById("clock").textContent = time;
+      clock.textContent = now.toLocaleTimeString("en-GB");
+      date.textContent = now.toLocaleDateString("en-GB", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
     }
     setInterval(updateClock, 1000);
     updateClock();
 
-    // Swipe down toggles night mode
-    let startY = null;
-    document.addEventListener("touchstart", e => startY = e.touches[0].clientY);
-    document.addEventListener("touchend", e => {
-      if (startY !== null) {
-        const endY = e.changedTouches[0].clientY;
-        if (endY - startY > 50) { // swipe down
-          document.body.classList.toggle("night");
-        }
-        startY = null;
+    // Fullscreen button click
+    btn.addEventListener("click", () => {
+      document.documentElement.requestFullscreen().then(() => {
+        btn.classList.add("hidden"); // hide button once fullscreen
+      });
+    });
+
+    // Show button again if fullscreen exits
+    document.addEventListener("fullscreenchange", () => {
+      if (!document.fullscreenElement) {
+        btn.classList.remove("hidden");
       }
     });
 
-    // Optional: allow mouse scroll down as well
-    document.addEventListener("wheel", e => {
-      if (e.deltaY > 0) document.body.classList.toggle("night");
-    });
+    // Night mode based on time
+    function checkTheme() {
+      const hour = new Date().getHours();
+      document.body.classList.toggle("night", hour >= 20 || hour < 7);
+    }
+    setInterval(checkTheme, 60000);
+    checkTheme();
   </script>
 </body>
 </html>
