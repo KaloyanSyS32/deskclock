@@ -1,100 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Desk Clock</title>
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-family: 'Courier New', monospace;
-    overflow: hidden;
-    background-color: #000000; /* pure black */
-    position: relative;
-  }
+  <meta charset="UTF-8">
+  <title>Clock</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #fff;
+      color: #000;
+      font-family: "Segoe UI", sans-serif;
+      font-size: 6rem;
+      transition: background 0.6s, color 0.6s;
+    }
 
-  #time {
-    font-size: 15vw;
-    letter-spacing: 2px;
-    position: relative;
-    z-index: 10;
-  }
-
-  #date {
-    font-size: 4vw;
-    margin-top: 2vh;
-    position: relative;
-    z-index: 10;
-  }
-
-  /* Full-screen button */
-  #fullscreenBtn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 10px 15px;
-    font-size: 16px;
-    z-index: 20;
-    cursor: pointer;
-    background-color: rgba(255,255,255,0.05);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    transition: opacity 0.3s ease;
-  }
-  #fullscreenBtn:hover {
-    background-color: rgba(255,255,255,0.1);
-  }
-</style>
+    body.night {
+      background: #111;
+      color: #888;  /* dimmed text, almost blends with bg */
+    }
+  </style>
 </head>
 <body>
-  <div id="time">00:00:00</div>
-  <div id="date">January 1, 2025</div>
-  <button id="fullscreenBtn">Full Screen</button>
+  <div id="clock"></div>
 
   <script>
-    // Clock update
     function updateClock() {
       const now = new Date();
-      const hours = String(now.getHours()).padStart(2,'0');
-      const minutes = String(now.getMinutes()).padStart(2,'0');
-      const seconds = String(now.getSeconds()).padStart(2,'0');
-      document.getElementById('time').textContent = `${hours}:${minutes}:${seconds}`;
-
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      document.getElementById('date').textContent = now.toLocaleDateString(undefined, options);
+      const time = now.toLocaleTimeString("en-GB", { hour12: false });
+      document.getElementById("clock").textContent = time;
     }
     setInterval(updateClock, 1000);
     updateClock();
 
-    // Full-screen toggle
-    const btn = document.getElementById('fullscreenBtn');
-    btn.addEventListener('click', () => {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-          alert(`Error attempting full-screen: ${err.message}`);
-        });
-      } else {
-        document.exitFullscreen();
+    // Swipe down toggles night mode
+    let startY = null;
+    document.addEventListener("touchstart", e => startY = e.touches[0].clientY);
+    document.addEventListener("touchend", e => {
+      if (startY !== null) {
+        const endY = e.changedTouches[0].clientY;
+        if (endY - startY > 50) { // swipe down
+          document.body.classList.toggle("night");
+        }
+        startY = null;
       }
     });
 
-    // Hide button in full-screen
-    document.addEventListener('fullscreenchange', () => {
-      if (document.fullscreenElement) {
-        btn.style.opacity = '0';   // fade out
-        btn.style.pointerEvents = 'none';
-      } else {
-        btn.style.opacity = '1';   // fade in
-        btn.style.pointerEvents = 'auto';
-      }
+    // Optional: allow mouse scroll down as well
+    document.addEventListener("wheel", e => {
+      if (e.deltaY > 0) document.body.classList.toggle("night");
     });
   </script>
 </body>
